@@ -4,19 +4,19 @@ import Menu from "../components/Menu";
 import $ from "jquery";
 
 const initialState = {
-	name: "",
+	player: "",
 	playerId: "",
+  wins: "",
+  losses: "",
 	first: 1,
 	second: 1,
 	third: 1,
 	fourth: 1,
-	activeGame: false,
 	wasCorrect: "",
 	correctDigits: "",
 	misplacedDigits: "",
 	remainingGuesses: 10,
 	attempts: []
-	//attempts: [[1,2,3,4,1,2],[2,3,4,5,1,2],[2,3,4,5,1,2],[2,3,4,5,1,2],[2,3,4,5,1,2],[2,3,4,5,1,2],[2,3,4,5,1,2],[2,3,4,5,1,2],[2,3,4,5,1,2],[2,3,4,5,1,2]],
 };
 
 const resetBoardState = {
@@ -24,6 +24,7 @@ const resetBoardState = {
 	second: 1,
 	third: 1,
 	fourth: 1,
+  activeGame: false,
 	wasCorrect: "",
 	correctDigits: "",
 	misplacedDigits: "",
@@ -45,15 +46,14 @@ export default class Layout extends React.Component {
   	this.changeValue3 = this.changeValue3.bind(this);
   	this.changeValue4 = this.changeValue4.bind(this);
   }
-  reset () {
-  	this.setState(initialState);
-  }
 
   displayName(e) {
+    /*
   	e.preventDefault()
   	this.setState({
 	  name: "someValue"
   	})
+    */
   }
 
   createNewPlayer() {
@@ -83,7 +83,6 @@ export default class Layout extends React.Component {
 
   createNewGame() {
     var that = this;
-    that.setState({activeGame: true});
     $.ajax({
       type: "POST",
       url: "http://challenge.thebeans.io:3000/api/player/" + that.state.playerId + "/new-game",
@@ -91,6 +90,8 @@ export default class Layout extends React.Component {
       success: function(data){
         alert(JSON.stringify("New Game Successfully Created!"));
   		  that.setState(resetBoardState);
+        that.setState({activeGame: true});
+        that.setState({attempts: []});
       },
       failure: function(errMsg) {
           alert(errMsg);
@@ -140,21 +141,46 @@ export default class Layout extends React.Component {
 	    	alert("Congratulations! You solved the puzzle!");
 	    	that.setState(resetBoardState);
 	    	that.forceUpdate();
+        $(".guesses").remove();
+        $.ajax({
+          type: "GET",
+          url: "http://challenge.thebeans.io:3000/api/stats",
+          dataType: "json",
+          success: function(data){
+            that.setState({wins: data.wins});
+            that.setState({losses: data.losses});
+          },
+          failure: function(errMsg) {
+              alert(errMsg);
+          }
+        });
 	    }
-	    else if(that.remainingGuesses < 1) {
+	    else if(that.state.remainingGuesses < 1) {
 	    	alert("Sorry, you ran out of moves. Better luck next time!");
 	    	that.setState(resetBoardState);
 	    	that.forceUpdate();
+        $(".guesses").remove();
+        $.ajax({
+          type: "GET",
+          url: "http://challenge.thebeans.io:3000/api/stats",
+          dataType: "json",
+          success: function(data){
+            that.setState({wins: data.wins});
+            that.setState({losses: data.losses});
+          },
+          failure: function(errMsg) {
+              alert(errMsg);
+          }
+        });
 	    }
-      }
-      ,
+      },
       failure: function(errMsg) {
           alert(errMsg);
       }
     });
 	} else {
-		that.setState(resetBoardState);
-		that.forceUpdate();
+		this.setState(resetBoardState);
+    $(".guesses").remove();
 	}
   }
 
@@ -226,7 +252,9 @@ export default class Layout extends React.Component {
         <Menu displayName={this.displayName}
         	  createNewPlayer={this.createNewPlayer}
         	  createNewGame={this.createNewGame}
-        	  name={this.state.name} />
+        	  player={this.state.player}
+            wins={this.state.wins}
+            losses={this.state.losses} />
       </div>
     );
   }

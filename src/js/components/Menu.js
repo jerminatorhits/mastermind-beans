@@ -18,7 +18,7 @@ export default class Menu extends React.Component {
         <Button onClick={this.props.createNewPlayer}>New Player</Button>
         <Button onClick={this.props.createNewGame}>New Game</Button>
         <h1>Hello</h1>
- 		    <h1>{this.props.name}</h1>
+ 		    <h1>{this.props.player}</h1>
       </div>
     );
   }

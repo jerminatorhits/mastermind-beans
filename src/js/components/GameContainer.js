@@ -65,7 +65,7 @@ export default class GameContainer extends React.Component {
         <ul id="list" style={containerStyle}>
           {
               this.props.attempts.map(function(item, i) {
-              return <GuessHolder key={i}
+              return <GuessHolder className="guesses" key={i}
                 first={item[0]} 
                 second={item[1]} 
                 third={item[2]} 
